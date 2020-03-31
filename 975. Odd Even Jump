@@ -1,0 +1,148 @@
+# [10,13,12,14,15]
+# 0   1   2  3  4
+
+
+# even_lower = {4: True}
+# odd_higher = {4: True}
+# index =3, 3th jump --> 4 : index =4, even jump --> True
+class Solution(object):
+    def oddEvenJumps(self, A):
+        even_lower = {len(A)-1:True}
+        odd_higher = {len(A)-1:True}
+
+        def oddJumpHelper(startIndex):
+            ## Identify Candidates for jumping
+            candidate = [x >= A[startIndex] for x in A[startIndex+1:]]
+            if not any(candidate):
+                odd_higher[startIndex]=False
+                return False
+            else:
+                m = float("inf")
+                min_j = -1
+                for j in range(startIndex+1, len(A)):
+                    if (A[j] < m) and (A[j]-A[startIndex]>=0):
+                        m = A[j]
+                        min_j = j
+            
+            if min_j in even_lower:
+                return even_lower[min_j]
+            else:
+                return evenJumpHelper(min_j)
+            
+        def evenJumpHelper(startIndex):
+            ## Identify Candidates for jumping
+            candidate = [x <= A[startIndex] for x in A[startIndex+1:]]
+            if not any(candidate):
+                even_lower[startIndex]=False
+                return False
+            else:
+                m = float("-inf")
+                max_j = -1
+                for j in range(startIndex+1, len(A)):
+                    if (A[j] > m) and (A[startIndex]-A[j]>=0):
+                        m = A[j]
+                        max_j = j
+
+            if max_j in odd_higher:
+                return odd_higher[max_j]
+            else:
+                return oddJumpHelper(max_j)
+        ##----------------##----------------##----------------##----------------##
+        for i in range(len(A)-2, -1, -1):
+            print(i)
+            odd_higher[i] = oddJumpHelper(i)
+        # [10,13,12,14,15]
+        #  1o    1e        X
+        #     10    1e     X
+        #        1o 1e     X
+        #           1o 1e
+        #
+        # [5, 1, 3, 4, 2]
+        #  1o              X
+        #     1o 1e    1o  O
+        #        1o 1e 1o  O
+        #           1o     X
+        # [2, 3, 1, 1, 4]
+        #  1o 1e 1o 1e     X   even_lower = { 3: False 
+        #     1o       1e  O
+        #        1o 1e     X
+        #           1o 1e  O   odd_higher = {
+        #              1o  O   
+        res = 0
+        for k, v in odd_higher.iteritems(): # make the object iterable - as dictionary is not iterable but it enables to be iterable
+            if v==True:
+                res+=1
+                
+        return res
+    
+    # 1 2 3 4 5
+    # odd_higher ={ 1: T/F, 2: T/F
+        
+"""
+
+class Solution(object):
+    # Time : O(N * N)
+    def oddEvenJumps(self, A):
+        # my goal
+        res = 0
+        resIndex = []
+        
+        for i in range(len(A)):
+            remainingA = A[i:]
+            print("starting at: ", remainingA[0], remainingA)
+            
+            if self.reachEndHelperOdd(remainingA):
+                print("if succeeded : ", i)
+                resIndex.append(i)
+                res+=1
+                
+        print(resIndex)
+        return res
+  
+    def reachEndHelperOdd(self, remainingA):
+        # bigger or equal than myself
+        # closest minimum of them
+        if len(remainingA)==1:
+            return True
+        
+        # 2 1 3 4 5
+        # 2-F T T T
+        candidate = [x>=remainingA[0] for x in remainingA[1:]]
+        if not any(candidate):
+            return False
+        else:
+            # My Attempt to get the minimum of the larger
+            # ex) A = [1,2,3,4,5]
+            #     [x+10 for x in A ] = [11,12,13,14,15]     [[]]
+            getMinList = [x-remainingA[0] for x in remainingA[1:]]
+            m = float("inf")
+            for i in range(len(remainingA[1:])):
+                if (getMinList[i] < m) and (getMinList[i]>=0):
+                    m = getMinList[i]
+                    min_i = i
+            #rint(remainingA[0], candidate, min_i)
+            remainingA = remainingA[min_i+1:] 
+            return self.reachEndHelperEven(remainingA)
+        
+    def reachEndHelperEven(self, remainingA):
+        # smaller or equal than myself
+        # closest minimum of them
+        if len(remainingA)==1:
+            return True
+        
+        candidate = [x<=remainingA[0] for x in remainingA[1:]]
+        if not any(candidate):
+            return False
+        else:
+            # My Attempt to get the maximum of the smaller
+            getMaxList = [remainingA[0]-x for x in remainingA[1:]]
+            m = float("inf")
+            for i in range(len(remainingA[1:])):
+                if (getMaxList[i] < m) and (getMaxList[i]>=0):
+                    m = getMaxList[i]
+                    max_i = i
+            #print(remainingA[0], candidate, max_i)
+            remainingA = remainingA[max_i+1:]
+            return self.reachEndHelperOdd(remainingA)
+            
+"""
