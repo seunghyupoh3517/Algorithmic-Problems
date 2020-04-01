@@ -1,0 +1,96 @@
+"""
+97. Interweaving String
+Given s1, s2, s3, find whether s3 is formed by the interleaving of s1 and s2.
+
+Example 1:
+
+Input: s1 = "aabcc", s2 = "dbbca", s3 = "aadbbcbcac"
+Output: true
+Example 2:
+
+Input: s1 = "aabcc", s2 = "dbbca", s3 = "aadbbbaccc"
+Output: false
+"""
+
+"""
+Interweaving Strings
+write a function that takes in three strings and reeturns a boolean representing whether or not the third string can be formed by interweaving the first two strings. to interweave string means to merge them by alternating their letters without any specific pattern. For instance, the string "abc" and "123" can be interwoven as "a1b2c3", "abc123", and as "ab1c23" ( this list is nonexhaustive).
+
+Sample input: "algoexpert", "your-dream-job","your-algodream-expertjob"
+Sample output : True
+"""
+    
+# one = "aabcc"
+# two = "dbbca"
+# three = "aadbbcbcac"
+
+# one = "aaaaa"
+# two = "aaaaa"
+# three = "aaaaaaaaaa"
+# 2 * 2 * 2 * 2 * 2 * 2 *
+
+# one = "aabcc"
+# two = "dbbca"
+# three = "aadbbbaccc"
+
+# one = "aabcc"
+# two = "dbbca"
+# three = "aadbbcbcac"
+"""
+def interweavingStrings(one, two, three):
+    # sanity check
+
+    if len(three)!=len(one)+len(two):
+        return False
+    
+    j = k = 0
+    for i in range(len(three)):    
+        if j < len(one) and three[i]==one[j]:
+            j+=1
+            continue
+        elif k < len(two) and three[i]==two[k]:
+            k+=1
+            continue
+        else:
+            return False
+        
+    return True
+"""
+
+def interweavingStrings(one, two, three):
+    # sanity check
+
+    if len(three)!=len(one)+len(two):
+        return False
+    res = [0]*len(three)
+    
+    # Iterate one & three
+    j = 0
+    for i in range(len(one)):
+        # proceed when not same
+        while j < len(three) and ((one[i]!=three[j]) or (one[i]==three[j] and res[j]==1)): 
+            j+=1
+        # when same
+        if j < len(three):
+            res[j]=1
+
+    # Iterate two & three
+    j = 0
+    for i in range(len(two)):
+        # proceed when not same
+        while j < len(three) and ((two[i]!=three[j]) or (two[i]==three[j] and res[j]==1)):            
+                j+=1
+        # when same
+        if j<len(three):
+            res[j]=1
+        
+    return all(res)
+
+
+
+one = "aabcc"
+two = "dbbca"
+three = "aadbbcbcac"
+[1,1,1,1,1,1,1,1,0,1]
+
+print(interweavingStrings(one, two, three))
