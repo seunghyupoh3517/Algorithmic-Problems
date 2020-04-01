@@ -1,0 +1,146 @@
+"""
+1057. Campus Bikes
+
+On a campus represented as a 2D grid, there are N workers and M bikes, with N <= M. Each worker and bike is a 2D coordinate on this grid.
+
+Our goal is to assign a bike to each worker. Among the available bikes and workers, we choose the (worker, bike) pair with the shortest Manhattan distance between each other, and assign the bike to that worker. (If there are multiple (worker, bike) pairs with the same shortest Manhattan distance, we choose the pair with the smallest worker index; if there are multiple ways to do that, we choose the pair with the smallest bike index). We repeat this process until there are no available workers.
+
+The Manhattan distance between two points p1 and p2 is Manhattan(p1, p2) = |p1.x - p2.x| + |p1.y - p2.y|.
+
+Return a vector ans of length N, where ans[i] is the index (0-indexed) of the bike that the i-th worker is assigned to.
+Example 1:
+Input: workers = [[0,0],[2,1]], bikes = [[1,2],[3,3]]
+Output: [1,0]
+Explanation: 
+Worker 1 grabs Bike 0 as they are closest (without ties), and Worker 0 is assigned Bike 1. So the output is [1, 0].
+
+Example 2:
+Input: workers = [[0,0],[1,1],[2,0]], bikes = [[1,0],[2,2],[2,1]]
+Output: [0,2,1]
+Explanation: 
+Worker 0 grabs Bike 0 at first. Worker 1 and Worker 2 share the same distance to Bike 2, thus Worker 1 is assigned to Bike 2, and Worker 2 will take Bike 1. So the output is [0,2,1].
+ 
+
+Note:
+
+0 <= workers[i][j], bikes[i][j] < 1000
+All worker and bike locations are distinct.
+1 <= workers.length <= bikes.length <= 1000
+"""
+class Logger(object):
+
+    def __init__(self):
+        self.mt = dict()
+        
+
+    def shouldPrintMessage(self, timestamp, message):
+        if message not in self.mt:
+            self.mt[message] = timestamp
+            return True
+        else:
+            if self.mt[message] - timestamp >= 10:
+                self.mt[message] = timestamp
+                return True
+            return False
+
+# Your Logger object will be instantiated and called as such:
+# obj = Logger()
+# param_1 = obj.shouldPrintMessage(timestamp,message)
+
+
+class Solution(object):
+    def assignBikes(self, workers, bikes):
+        """
+        :type workers: List[List[int]]
+        :type bikes: List[List[int]]
+        :rtype: List[int]
+        """
+        # return      [ bike0,  bike2,  bike1 ]
+        # which means  worker0, worker1, worker2 picked up each bike
+        # 1. shortest manhattan distance between each other
+        # 2. same distances --> smallest worker index
+        # 3. smallest bike index
+        # 4. repeat the same process
+        
+        # 1. Create a hash map of distances and what they consist of
+        
+        def manhattan(worker, bike):
+            return abs(worker[0]-bike[0]) + abs(worker[1]-bike[1])
+        
+        distDict = dict()
+        distList = [False]*2001
+        
+        ## M*N combinations
+        for i in range(len(workers)):
+            for j in range(len(bikes)):
+                currDist = manhattan(workers[i], bikes[j])
+                distList[currDist] = True
+                if currDist in distDict:
+                    #-#distDict[currDist].append(  [[i, workers[i]],[j, bikes[j]]]  )
+                    distDict[currDist].append(  [i,j] )
+                else:
+                    #-#distDict[currDist] = [    [[i, workers[i]],[j, bikes[j]]]   ]
+                    distDict[currDist]=[[i,j]]
+        # distDict : { "distance" : [ [["workerIdx", [i,j]]  , ["bikeIdx",[i,j]]]
+        #                               , [["workerIdx", [i,j]]  , ["bikeIdx",[i,j]]]
+        #                           ]
+        #  }
+        workersRemoved = [True for i in range(len(workers))]
+        bikesRemoved = [True for i in range(len(bikes))]
+        res = [None]*len(workers)
+        for i in range(len(distList)):
+            if distList[i]==True:
+                for pair in distDict[i]:
+                    #-#workerNum = pair[0][0]
+                    #-#bikeNum = pair[1][0]
+                    workerNum = pair[0]
+                    bikeNum = pair[1]
+                    if workersRemoved[workerNum]==False or bikesRemoved[bikeNum]==False:
+                        continue
+                    else:
+                        workersRemoved[workerNum]=False
+                        bikesRemoved[bikeNum]=False
+                        res[workerNum] = bikeNum
+        return res
+                        
+                        
+        
+                    
+                
+                
+        
+        
+        
+    # let's just try to do one
+"""
+For each worker, create a sorted list of distances to each bike. The elements of the list are tuples (distance, worker, bike).
+For each worker, add the tuple with the shortest distance to the heap.
+Until each worker has a bike, pop the smallest distance from the heap.
+If this bike is not used, update the result for this worker, else add the next closest tuple for this worker to the heap.
+
+def assignBikes(self, workers, bikes):
+        distances = []     # distances[worker] is tuple of (distance, worker, bike) for each bike 
+        for i, (x, y) in enumerate(workers):
+            distances.append([])
+            for j, (x_b, y_b) in enumerate(bikes):
+                distance = abs(x - x_b) + abs(y - y_b)
+                distances[-1].append((distance, i, j))
+            distances[-1].sort(reverse = True)  # reverse so we can pop the smallest distance
+        
+        result = [None] * len(workers)
+        used_bikes = set()
+        queue = [distances[i].pop() for i in range(len(workers))]   # smallest distance for each worker
+        heapq.heapify(queue)
+        
+        while len(used_bikes) < len(workers):
+            _, worker, bike = heapq.heappop(queue)
+            if bike not in used_bikes:
+                result[worker] = bike
+                used_bikes.add(bike)
+            else:
+                heapq.heappush(queue, distances[worker].pop())  # bike used, add next closest bike
+        
+        return result
+
+"""
+    
