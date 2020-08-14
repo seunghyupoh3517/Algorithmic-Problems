@@ -1,0 +1,86 @@
+# MakeFile = help to organize code compilation
+- prevent retyping it from scratch when you lose the command or witch the computer
+- easy to make change to one file, does not need to recompile all  of them
+
+ex1)
+hellomake: hellomake.c hellofun.c 
+    gcc: -o hellomakehellomake.c hellop fun.c -I
+
+
+* make without arguments exzecute the first rule in the file
+
+
+ex2) 
+CC=gcc # CC = C compiler to use
+CFLAGS=-I. # CFALGS = list of flags to pass to compilation command
+
+hellomake: hellomake.o hellofunc.o # putting two filess in the dependcy list and in the rule
+    $(CC) -o hellomake hellomake.o hellofunc.o
+
+* constants CC and CFlags = communicating to make how we want to  compile the hellomake.c hellofun.change
+* Missing dependency on the include filess -> We need to tell 'make' that all .c files depend on certain .h filess
+
+
+ex3)
+CC=gcc
+CFLAGS=-I.
+DEPS  = hellomake.h
+
+%.o: %.c $(DEPS)
+    $(CC) -c $@ $< $(CFLAGS) # -c says to generate the object file / $< is the first item in the dependcies list
+hellomake: hellomake.o hellofunc.o # -o says to put the output of the compilation in the file named on the left side of the:
+    $(CC) -o hellomake hellomake.o hellofunc.o
+
+* Creates the macro DEPS which is the set of .h files on which the .c files depend.
+* Then we define a rule that applies to all files ending in the .o
+=> The rule says that .o file depends upon the .c version of file and the .h files included in the DEPS macro
+=> generate the .o file, 'make' needs to compile the .c file ussing the compiler defined in CC
+
+
+
+ex4)
+CC=gcc
+CFLAGS=-I.
+DEPS = hellomake.h
+OBJ = hellomake.o hellofunc.o # obejct subdirectory within source directory
+                              # also includes 'make clean' rule to clean up source and obejct directories
+
+%.o: %.c $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+hellomake: $(OBJ)
+	$(CC) -o $@ $^ $(CFLAGS)
+
+
+ex5)
+IDIR =../include
+CC=gcc
+CFLAGS=-I$(IDIR)
+
+ODIR=obj
+LDIR =../lib
+
+LIBS=-lm
+
+_DEPS = hellomake.h
+DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
+
+_OBJ = hellomake.o hellofunc.o 
+OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
+
+
+$(ODIR)/%.o: %.c $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+hellomake: $(OBJ)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+
+.PHONY: clean
+
+clean:
+	rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~ 
+
+
+
+
+Credited to: https://www.cs.colby.edu/maxwell/courses/tutorials/maketutor/
